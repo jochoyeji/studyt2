@@ -24,7 +24,7 @@
         const month = now.getMonth(); 
         const todayDate = now.getDate();
         
-        // 요구사항 [문제 2]: 정적 텍스트를 파괴하고 실제 해당 현재 년도와 월을 주입
+        // [상단 날짜 표시] 정적 텍스트를 파괴하고 실제 현재 년도와 월을 주입 (예: 2026년 7월)
         monthYearDisplay.textContent = `${year}년 ${month + 1}월`;
         calendarContainer.innerHTML = '';
 
