@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>성취도 기반 자기주도학습 플래너</title>
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+    <div id="app">
+        <main id="screen-main" class="screen active">
+            <header class="header">
+                <h1 id="current-month-year">--년 --월</h1>
+                <button id="btn-menu" class="icon-btn" aria-label="메뉴 열기">
+                    <span class="hamburger-line"></span>
+                    <span class="hamburger-line"></span>
+                    <span class="hamburger-line"></span>
+                </button>
+            </header>
+
+            <section class="stats-container">
+                <div class="stat-box">
+                    <span class="stat-label">평균 달성률</span>
+                    <span id="stat-avg" class="stat-value">-</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-label">어제 달성률</span>
+                    <span id="stat-yesterday" class="stat-value">-</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-label">연속 성취도</span>
+                    <span id="stat-streak" class="stat-value">-일</span>
+                </div>
+            </section>
+
+            <section id="calendar-container" class="calendar-grid">
+                </section>
+        </main>
+
+        <div id="screen-timetable" class="screen content-padding">
+            <button class="btn-back btn-text">⬅ 뒤로가기</button>
+            <h2 style="margin-top:20px;">요일별 시간표 설정 화면</h2>
+        </div>
+        <div id="screen-rewards" class="screen content-padding">
+            <button class="btn-back btn-text">⬅ 뒤로가기</button>
+            <h2 style="margin-top:20px;">성취도 보상 목록 화면</h2>
+        </div>
+        <div id="screen-settings" class="screen content-padding">
+            <button class="btn-back btn-text">⬅ 뒤로가기</button>
+            <h2 style="margin-top:20px;">설정 화면</h2>
+        </div>
+
+        <div id="menu-modal" class="modal-overlay hidden">
+            <div class="modal-content square-modal">
+                <button id="btn-close-menu" class="btn-close-box">X</button>
+                <div class="menu-button-group">
+                    <button class="menu-btn box-button" data-target="screen-timetable">요일별 시간표 설정</button>
+                    <button class="menu-btn box-button" data-target="screen-rewards">성취도 보상 목록</button>
+                    <button class="menu-btn box-button" data-target="screen-settings">설정</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="study-time-modal" class="modal-overlay hidden">
+            <div class="study-modal-box">
+                <h3>실제 공부 시간 입력</h3>
+                <div class="time-input-group">
+                    <input type="number" id="input-hours" min="0" placeholder="0"> 시간
+                    <input type="number" id="input-minutes" min="0" max="59" placeholder="00"> 분
+                </div>
+                <p id="study-time-error" class="error-text hidden">올바른 시간을 입력하세요.</p>
+                <button id="btn-save-time" class="btn-text">완료</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="./js/app.js"></script>
+    <script src="./js/storage.js"></script>
+    <script src="./js/records.js"></script>
+    <script src="./js/calendar.js"></script>
+</body>
+</html>
