@@ -360,47 +360,70 @@ button {
     padding-top: 15px;
     font-size: 0.95rem;
 }
-/* --- [5단계] 성취도 보상 목록 스타일 --- */
-.reward-input-box {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-}
-#input-reward-text {
-    flex: 1;
+
+/* --- [5-6단계 통합] 설정 및 보상 목록 스타일 --- */
+.reward-guide-box {
     border: 2px solid #000;
-    padding: 10px;
-    font-size: 0.95rem;
-}
-#reward-list-container {
+    background-color: #fff;
+    margin-bottom: 12px;
     display: flex;
     flex-direction: column;
-    gap: 12px;
 }
-.reward-item {
+.reward-guide-header {
+    background-color: #000;
+    color: #fff;
+    padding: 8px 12px;
+    font-weight: bold;
     display: flex;
     justify-content: space-between;
+    font-size: 0.95rem;
+}
+.reward-guide-body {
+    padding: 12px;
+    font-size: 1rem;
+    font-weight: bold;
+    min-height: 44px;
+    display: flex;
     align-items: center;
+    background-color: #fff;
+    color: #000;
+}
+
+.setting-row-group {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+.set-card {
     border: 2px solid #000;
-    padding: 12px 15px;
     background-color: #fff;
 }
-.reward-item.completed {
+.set-card-header {
     background-color: #f0f0f0;
-    text-decoration: line-through;
-    opacity: 0.6;
-}
-.reward-item-text {
+    border-bottom: 1px solid #000;
+    padding: 6px 10px;
     font-weight: bold;
-    font-size: 1rem;
-    cursor: pointer;
-    flex: 1;
+    font-size: 0.9rem;
 }
-.btn-delete-reward {
-    color: #ff0000;
-    border: 1px solid #ff0000;
-    padding: 3px 8px;
-    font-size: 0.85rem;
+.set-card-body {
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.set-card-body label {
     font-weight: bold;
-    margin-left: 10px;
+    font-size: 0.9rem;
+}
+.set-card-body input[type="number"] {
+    width: 60px;
+    border: 1px solid #000;
+    padding: 3px;
+    text-align: right;
+}
+.set-card-body input[type="text"] {
+    width: 100%;
+    border: 1px solid #000;
+    padding: 6px;
+    font-size: 0.9rem;
 }
