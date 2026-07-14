@@ -116,29 +116,35 @@
     <script src="js/storage.js"></script>
     <script src="js/records.js"></script>
     <script>
-    (function() {
-        // --- [기존 캘린더 변수 및 함수] ---
-        const calendarContainer = document.getElementById('calendar-container');
-        const monthYearDisplay = document.getElementById('current-month-year');
-        const studyModal = document.getElementById('study-time-modal');
-        const inputHours = document.getElementById('input-hours');
-        const inputMinutes = document.getElementById('input-minutes');
-        const errorText = document.getElementById('study-time-error');
-        const btnSaveTime = document.getElementById('btn-save-time');
-        let selectedDateStr = null;
+(function() {
+    // --- [캘린더 및 공통 변수] ---
+    const calendarContainer = document.getElementById('calendar-container');
+    const monthYearDisplay = document.getElementById('current-month-year');
+    const studyModal = document.getElementById('study-time-modal');
+    const inputHours = document.getElementById('input-hours');
+    const inputMinutes = document.getElementById('input-minutes');
+    const errorText = document.getElementById('study-time-error');
+    const btnSaveTime = document.getElementById('btn-save-time');
+    let selectedDateStr = null;
 
-        // --- [4단계 추가: 시간표 변수] ---
-        const TIMETABLE_KEY = 'timetable';
-        let currentSelectedDay = 1; // 기본값: 월요일(1)
-        const dayNames = { 1: '월요일', 2: '화요일', 3: '수요일', 4: '목요일', 5: '금요일', 6: '토요일', 0: '일요일' };
-        
-        const tabButtons = document.querySelectorAll('.tab-btn');
-        const selectedDayTitle = document.getElementById('selected-day-title');
-        const slotsContainer = document.getElementById('timetable-slots-container');
-        const btnAddSlot = document.getElementById('btn-add-slot');
-        const btnSaveTimetable = document.getElementById('btn-save-timetable');
-        const totalTargetText = document.getElementById('total-target-text');
+    // --- [시간표 변수] ---
+    const TIMETABLE_KEY = 'timetable';
+    let currentSelectedDay = 1; 
+    const dayNames = { 1: '월요일', 2: '화요일', 3: '수요일', 4: '목요일', 5: '금요일', 6: '토요일', 0: '일요일' };
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const selectedDayTitle = document.getElementById('selected-day-title');
+    const slotsContainer = document.getElementById('timetable-slots-container');
+    const btnAddSlot = document.getElementById('btn-add-slot');
+    const btnSaveTimetable = document.getElementById('btn-save-timetable');
+    const totalTargetText = document.getElementById('total-target-text');
 
+    // --- [5단계 추가: 보상 목록 변수] ---
+    const REWARDS_KEY = 'study_rewards_list';
+    const inputRewardText = document.getElementById('input-reward-text');
+    const btnAddReward = document.getElementById('btn-add-reward');
+    const rewardListContainer = document.getElementById('reward-list-container');
+
+    // --- [캘린더 로직] ---
     function renderCalendar() {
         if (!calendarContainer || !monthYearDisplay) return;
         const now = new Date();
@@ -246,7 +252,7 @@
         if (studyModal) studyModal.classList.add('hidden');
     }
 
-    // --- [4단계 추가: 시간표 핵심 로직 함수] ---
+    // --- [시간표 로직] ---
     function initTimetable() {
         tabButtons.forEach(button => {
             button.addEventListener('click', (e) => {
@@ -256,30 +262,24 @@
                 loadTimetableForDay(currentSelectedDay);
             });
         });
-
         btnAddSlot.addEventListener('click', () => {
             createSlotRow('', '');
             calculateTotalTargetTime();
         });
-
         btnSaveTimetable.addEventListener('click', () => {
             saveTimetableForDay();
         });
-
-        // 초기 실행 시 월요일 데이터 로드
         loadTimetableForDay(currentSelectedDay);
     }
 
     function loadTimetableForDay(day) {
+        if(!selectedDayTitle) return;
         selectedDayTitle.textContent = `${dayNames[day]} 목표 시간표`;
         slotsContainer.innerHTML = '';
-
         if (!window.AppStorage) return;
         const timetable = window.AppStorage.get(TIMETABLE_KEY) || {};
         const daySlots = timetable[day] || [];
-
         if (daySlots.length === 0) {
-            // 데이터가 없으면 기본 빈 슬롯 하나 생성
             createSlotRow('09:00', '12:00');
         } else {
             daySlots.forEach(slot => {
@@ -292,7 +292,6 @@
     function createSlotRow(startTime = '', endTime = '') {
         const row = document.createElement('div');
         row.className = 'slot-row';
-
         row.innerHTML = `
             <div class="slot-inputs">
                 <input type="time" class="input-start" value="${startTime}">
@@ -301,28 +300,22 @@
             </div>
             <button class="btn-delete-slot">삭제</button>
         `;
-
-        // 삭제 버튼 이벤트 바인딩
         row.querySelector('.btn-delete-slot').addEventListener('click', () => {
             row.remove();
             calculateTotalTargetTime();
         });
-
-        // 시간 변경시 실시간 계산 바인딩
         row.querySelector('.input-start').addEventListener('change', calculateTotalTargetTime);
         row.querySelector('.input-end').addEventListener('change', calculateTotalTargetTime);
-
         slotsContainer.appendChild(row);
     }
 
     function calculateTotalTargetTime() {
+        if(!slotsContainer) return;
         const rows = slotsContainer.querySelectorAll('.slot-row');
         let totalMinutes = 0;
-
         rows.forEach(row => {
             const startVal = row.querySelector('.input-start').value;
             const endVal = row.querySelector('.input-end').value;
-
             if (startVal && endVal) {
                 const [sH, sM] = startVal.split(':').map(Number);
                 const [eH, eM] = endVal.split(':').map(Number);
@@ -330,7 +323,6 @@
                 if (diff > 0) totalMinutes += diff;
             }
         });
-
         const hours = Math.floor(totalMinutes / 60);
         const minutes = totalMinutes % 60;
         totalTargetText.textContent = `${hours}시간 ${minutes}분`;
@@ -341,52 +333,107 @@
         const rows = slotsContainer.querySelectorAll('.slot-row');
         const daySlots = [];
         let isValid = true;
-
         rows.forEach(row => {
             const start = row.querySelector('.input-start').value;
             const end = row.querySelector('.input-end').value;
-
-            if (!start || !end) {
-                isValid = false;
-                return;
-            }
-
+            if (!start || !end) { isValid = false; return; }
             const [sH, sM] = start.split(':').map(Number);
             const [eH, eM] = end.split(':').map(Number);
-            if ((eH * 60 + eM) <= (sH * 60 + sM)) {
-                isValid = false;
-            }
-
+            if ((eH * 60 + eM) <= (sH * 60 + sM)) { isValid = false; }
             daySlots.push({ start, end });
         });
-
         if (!isValid) {
             if (window.showToast) window.showToast('올바른 시작/종료 시간을 입력해 주세요.', true);
             return;
         }
-
         const timetable = window.AppStorage.get(TIMETABLE_KEY) || {};
         timetable[currentSelectedDay] = daySlots;
-
         const success = window.AppStorage.save(TIMETABLE_KEY, timetable);
         if (success) {
             if (window.showToast) window.showToast(`${dayNames[currentSelectedDay]} 시간표가 저장되었습니다!`);
-            renderCalendar(); // 달력 성취도 기준 실시간 동기화 갱신
+            renderCalendar();
         }
     }
 
-    // 초기 로드 시점 일괄 실행 실행 제어부
+    // --- [5단계 추가: 보상 목록 핵심 로직] ---
+    function initRewards() {
+        if (!btnAddReward) return;
+        
+        btnAddReward.addEventListener('click', () => {
+            const text = inputRewardText.value.trim();
+            if (text === '') {
+                if (window.showToast) window.showToast('보상 내용을 입력해 주세요.', true);
+                return;
+            }
+            
+            const rewards = window.AppStorage.get(REWARDS_KEY) || [];
+            rewards.push({ id: Date.now(), text: text, completed: false });
+            
+            if (window.AppStorage.save(REWARDS_KEY, rewards)) {
+                inputRewardText.value = '';
+                renderRewards();
+                if (window.showToast) window.showToast('새로운 보상이 추가되었습니다!');
+            }
+        });
+
+        renderRewards();
+    }
+
+    function renderRewards() {
+        if (!rewardListContainer) return;
+        rewardListContainer.innerHTML = '';
+
+        const rewards = window.AppStorage.get(REWARDS_KEY) || [];
+        
+        if (rewards.length === 0) {
+            rewardListContainer.innerHTML = `<p style="text-align:center; color:#666; font-size:0.9rem; padding:20px 0;">등록된 보상이 없습니다. 목표를 세워보세요!</p>`;
+            return;
+        }
+
+        rewards.forEach(reward => {
+            const item = document.createElement('div');
+            item.className = `reward-item ${reward.completed ? 'completed' : ''}`;
+            
+            item.innerHTML = `
+                <span class="reward-item-text">${reward.completed ? '✅ ' : '⬜ '} ${reward.text}</span>
+                <button class="btn-delete-reward">삭제</button>
+            `;
+
+            // 클릭 시 완료 토글 이벤트
+            item.querySelector('.reward-item-text').addEventListener('click', () => {
+                reward.completed = !reward.completed;
+                window.AppStorage.save(REWARDS_KEY, rewards);
+                renderRewards();
+                if (reward.completed && window.showToast) {
+                    window.showToast('🎉 보상 획득 완료! 수고하셨습니다!');
+                }
+            });
+
+            // 삭제 버튼 이벤트
+            item.querySelector('.btn-delete-reward').addEventListener('click', () => {
+                const filtered = rewards.filter(r => r.id !== reward.id);
+                window.AppStorage.save(REWARDS_KEY, filtered);
+                renderRewards();
+            });
+
+            rewardListContainer.appendChild(item);
+        });
+    }
+
+    // --- [초기화 실행 제어] ---
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', () => {
             renderCalendar();
             initTimetable();
+            initRewards(); // 보상 기능 작동 시작
         });
     } else {
         renderCalendar();
         initTimetable();
+        initRewards();
     }
 
-    // 모달 이벤트 바인딩
+    // 모달 기본 바인딩
     if (studyModal) {
         studyModal.addEventListener('click', (e) => {
             if (e.target === studyModal) closeStudyModal();
