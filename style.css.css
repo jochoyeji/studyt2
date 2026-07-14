@@ -1,0 +1,283 @@
+/**
+ * css/style.css
+ * 통합 스타일시트 - 흰색 배경, 검정 텍스트/테두리 기반의 직관적인 미니멀 레이아웃
+ */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+    color: #000;
+}
+
+body {
+    background-color: #e0e0e0;
+    display: flex;
+    justify-content: center;
+    min-height: 100vh;
+}
+
+/* 앱 전체 컨테이너 (모바일 뷰포트 비율 고정) */
+#app {
+    width: 100%;
+    max-width: 480px;
+    background-color: #ffffff;
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+    box-shadow: 0 0 15px rgba(0,0,0,0.2);
+}
+
+/* SPA 화면 전환 컨트롤 */
+.screen {
+    display: none;
+    width: 100%;
+    min-height: 100vh;
+    flex-direction: column;
+}
+.screen.active {
+    display: flex;
+}
+
+/* 헤더 정의 */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 2px solid #000;
+}
+.header h1 {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+/* 버튼 공통 기초 */
+button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+}
+.icon-btn {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+}
+.btn-back {
+    font-size: 1.1rem;
+    font-weight: bold;
+    align-self: flex-start;
+}
+.btn-text {
+    font-weight: bold;
+    padding: 6px 12px;
+    border: 1px solid #000;
+    background-color: #fff;
+}
+
+/* 햄버거 메뉴 가로선 */
+.hamburger-line {
+    width: 24px;
+    height: 3px;
+    background-color: #000;
+    display: block;
+}
+
+/* 상단 통계 그리드 블록 */
+.stats-container {
+    display: flex;
+    justify-content: space-between;
+    padding: 15px 20px;
+    gap: 10px;
+}
+.stat-box {
+    flex: 1;
+    border: 1px solid #000;
+    padding: 10px 5px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+}
+.stat-label {
+    font-size: 0.8rem;
+    word-break: keep-all;
+}
+.stat-value {
+    font-weight: bold;
+    font-size: 1rem;
+}
+.content-padding {
+    padding: 20px;
+}
+
+/* 모달 기초 레이어 */
+.modal-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+}
+
+/* 정사각형 메뉴 모달 */
+.square-modal {
+    width: 75%;
+    aspect-ratio: 1 / 1;
+    background-color: #fff;
+    border: 2px solid #000;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+}
+.btn-close-box {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 30px;
+    height: 30px;
+    border: 2px solid #000;
+    background-color: #fff;
+    font-weight: bold;
+    font-size: 1.1rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* 메뉴 모달 내 버튼 레이아웃 정렬 */
+.menu-button-group {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 25px;
+}
+
+/* 요구사항 [문제 3]: 독립된 사각형 테두리를 명확히 가진 네모 박스 스타일 */
+.menu-btn.box-button {
+    border: 2px solid #000 !important;
+    padding: 14px 10px;
+    font-weight: bold;
+    text-align: center;
+    background-color: #fff;
+    display: block;
+    width: 100%;
+    border-radius: 0px !important; /* 모서리 라운딩 완전 제거 */
+}
+.menu-btn.box-button:active {
+    background-color: #f0f0f0;
+}
+
+/* 하단 토스트 팝업 폼 */
+.toast {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #fff;
+    border: 2px solid #000;
+    padding: 10px 20px;
+    font-size: 0.9rem;
+    font-weight: bold;
+    z-index: 200;
+    white-space: nowrap;
+}
+.toast.error {
+    color: #ff0000;
+    border-color: #ff0000;
+}
+
+/* 캘린더 전용 그리드 배치 레이아웃 */
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+    padding: 0 20px;
+    margin-bottom: 20px;
+    align-content: start;
+}
+.cal-header-day {
+    text-align: center;
+    font-weight: bold;
+    font-size: 0.9rem;
+    padding: 8px 0;
+}
+.cal-day {
+    background-color: #fff;
+    border: 1px solid #000;
+    aspect-ratio: 1 / 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 4px;
+    cursor: pointer;
+}
+.cal-day.today {
+    border: 3px solid #000; /* 오늘 날짜 볼드 보더 강조 */
+    font-weight: bold;
+}
+.grade-display {
+    margin-top: auto;
+    font-size: 1.05rem;
+    font-weight: bold;
+}
+
+/* 요구사항 [2단계 완료]: 순공 시간 입력 창 (가로 폭 40% 고정 마크업) */
+.study-modal-box {
+    width: 40%;
+    min-width: 175px;
+    background-color: #fff;
+    border: 2px solid #000;
+    padding: 20px 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    text-align: center;
+}
+.study-modal-box h3 {
+    font-size: 0.9rem;
+    word-break: keep-all;
+}
+.time-input-group {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.85rem;
+}
+.time-input-group input {
+    width: 38px;
+    text-align: right;
+    border: 1px solid #000;
+    padding: 2px;
+    font-size: 0.95rem;
+}
+.time-input-group input::-webkit-outer-spin-button,
+.time-input-group input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+.error-text {
+    color: #ff0000;
+    font-size: 0.8rem;
+    margin-top: -5px;
+}
+.hidden {
+    display: none !important;
+}
