@@ -69,9 +69,20 @@
     </div>
 </div>
         <div id="screen-rewards" class="screen content-padding">
-            <button class="btn-back btn-text">⬅ 뒤로가기</button>
-            <h2 style="margin-top:20px;">성취도 보상 목록 화면</h2>
+    <header class="header" style="border-bottom:none; padding:15px 0;">
+        <button class="btn-back btn-text">⬅ 뒤로가기</button>
+        <h2>성취도 보상 목록</h2>
+        <div class="header-placeholder"></div>
+    </header>
+
+    <div class="reward-input-box">
+        <input type="text" id="input-reward-text" placeholder="나에게 줄 보상을 입력하세요 (예: 치킨 먹기)">
+        <button id="btn-add-reward" class="btn-text">추가</button>
+    </div>
+
+    <div id="reward-list-container">
         </div>
+    </div>
         <div id="screen-settings" class="screen content-padding">
             <button class="btn-back btn-text">⬅ 뒤로가기</button>
             <h2 style="margin-top:20px;">설정 화면</h2>
