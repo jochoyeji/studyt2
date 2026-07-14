@@ -75,18 +75,71 @@
         <div class="header-placeholder"></div>
     </header>
 
-    <div class="reward-input-box">
-        <input type="text" id="input-reward-text" placeholder="나에게 줄 보상을 입력하세요 (예: 치킨 먹기)">
-        <button id="btn-add-reward" class="btn-text">추가</button>
-    </div>
+    <p style="font-size:0.9rem; margin-bottom:15px; line-height:1.4; text-align:center;">
+        현재 설정된 등급별 기준과 보상 목록입니다.
+    </p>
 
-    <div id="reward-list-container">
+    <div id="reward-guide-container">
         </div>
+</div>
+
+<div id="screen-settings" class="screen content-padding">
+    <header class="header" style="border-bottom:none; padding:15px 0;">
+        <button class="btn-back btn-text">⬅ 뒤로가기</button>
+        <h2>등급 및 보상 설정</h2>
+        <div class="header-placeholder"></div>
+    </header>
+
+    <div class="settings-box">
+        <p style="font-size:0.85rem; margin-bottom:15px; line-height:1.4;">
+            각 등급 달성에 필요한 <strong>최소 달성률(%)</strong>과 달성 시 <strong>나에게 줄 보상</strong>을 직접 지정합니다.
+        </p>
+        
+        <div class="setting-row-group">
+            <div class="set-card">
+                <div class="set-card-header">SS 등급</div>
+                <div class="set-card-body">
+                    <label><input type="number" id="set-ss-pct" min="0" max="100"> % 이상</label>
+                    <input type="text" id="set-ss-reward" placeholder="SS등급 달성 시 보상 (예: 치킨 1마리)">
+                </div>
+            </div>
+
+            <div class="set-card">
+                <div class="set-card-header">S 등급</div>
+                <div class="set-card-body">
+                    <label><input type="number" id="set-s-pct" min="0" max="100"> % 이상</label>
+                    <input type="text" id="set-s-reward" placeholder="S등급 달성 시 보상 (예: 코인 노래방)">
+                </div>
+            </div>
+
+            <div class="set-card">
+                <div class="set-card-header">A 등급</div>
+                <div class="set-card-body">
+                    <label><input type="number" id="set-a-pct" min="0" max="100"> % 이상</label>
+                    <input type="text" id="set-a-reward" placeholder="A등급 달성 시 보상 (예: 아메리카노)">
+                </div>
+            </div>
+
+            <div class="set-card">
+                <div class="set-card-header">B 등급</div>
+                <div class="set-card-body">
+                    <label><input type="number" id="set-b-pct" min="0" max="100"> % 이상</label>
+                    <input type="text" id="set-b-reward" placeholder="B등급 달성 시 보상 (예: 편의점 간식)">
+                </div>
+            </div>
+
+            <div class="set-card">
+                <div class="set-card-header">C 등급</div>
+                <div class="set-card-body">
+                    <label><input type="number" id="set-c-pct" min="0" max="100"> % 이상</label>
+                    <input type="text" id="set-c-reward" placeholder="C등급 달성 시 보상 (예: 산책 10분)">
+                </div>
+            </div>
+        </div>
+
+        <button id="btn-save-settings" class="btn-text" style="width:100%; padding:12px; margin-top:20px;">설정 및 보상 저장</button>
     </div>
-        <div id="screen-settings" class="screen content-padding">
-            <button class="btn-back btn-text">⬅ 뒤로가기</button>
-            <h2 style="margin-top:20px;">설정 화면</h2>
-        </div>
+</div>
 
         <div id="menu-modal" class="modal-overlay hidden">
             <div class="modal-content square-modal">
