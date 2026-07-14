@@ -191,6 +191,7 @@
     const TIMETABLE_KEY = 'timetable';
     const SETTINGS_KEY = 'settings';
     const RECORDS_KEY = 'study_records';
+    const FEEDBACK_KEY = 'user_feedbacks'; // 피드백 저장 키
 
     // --- [기본 성취도 및 보상 설정셋] ---
     const defaultSettings = [
@@ -236,6 +237,10 @@
     const setCPct = document.getElementById('set-c-pct');
     const setCReward = document.getElementById('set-c-reward');
     const btnSaveSettings = document.getElementById('btn-save-settings');
+
+    // --- [피드백 관련 변수] ---
+    const inputFeedbackText = document.getElementById('input-feedback-text');
+    const btnSendFeedback = document.getElementById('btn-send-feedback');
 
     // --- [캘린더 렌더 로직] ---
     function renderCalendar() {
@@ -448,7 +453,7 @@
         }
     }
 
-    // --- [보상 목록 가이드판 단순 렌더 로직] ---
+    // --- [보상 목록 가이드판 렌더 로직] ---
     function renderRewards() {
         if (!rewardGuideContainer) return;
         rewardGuideContainer.innerHTML = '';
@@ -473,50 +478,28 @@
         });
     }
 
-    // --- [설정 및 보상 통합 제어 로직] ---
+    // --- [설정 및 보상 제어 로직] ---
     function initSettings() {
         if (!btnSaveSettings) return;
 
         if (!window.AppStorage) return;
         const settings = window.AppStorage.get(SETTINGS_KEY) || defaultSettings;
         
-        // 화면 인풋에 기존 값 바인딩
         settings.forEach(item => {
-            if (item.grade === 'SS') {
-                setSsPct.value = item.score;
-                setSsReward.value = item.reward || '';
-            }
-            if (item.grade === 'S') {
-                setSPct.value = item.score;
-                setSReward.value = item.reward || '';
-            }
-            if (item.grade === 'A') {
-                setAPct.value = item.score;
-                setAReward.value = item.reward || '';
-            }
-            if (item.grade === 'B') {
-                setBPct.value = item.score;
-                setBReward.value = item.reward || '';
-            }
-            if (item.grade === 'C') {
-                setCPct.value = item.score;
-                setCReward.value = item.reward || '';
-            }
+            if (item.grade === 'SS') { setSsPct.value = item.score; setSsReward.value = item.reward || ''; }
+            if (item.grade === 'S') { setSPct.value = item.score; setSReward.value = item.reward || ''; }
+            if (item.grade === 'A') { setAPct.value = item.score; setAReward.value = item.reward || ''; }
+            if (item.grade === 'B') { setBPct.value = item.score; setBReward.value = item.reward || ''; }
+            if (item.grade === 'C') { setCPct.value = item.score; setCReward.value = item.reward || ''; }
         });
 
         btnSaveSettings.addEventListener('click', () => {
-            const ssP = Number(setSsPct.value);
-            const ssR = setSsReward.value.trim();
-            const sP = Number(setSPct.value);
-            const sR = setSReward.value.trim();
-            const aP = Number(setAPct.value);
-            const aR = setAReward.value.trim();
-            const bP = Number(setBPct.value);
-            const bR = setBReward.value.trim();
-            const cP = Number(setCPct.value);
-            const cR = setCReward.value.trim();
+            const ssP = Number(setSsPct.value); const ssR = setSsReward.value.trim();
+            const sP = Number(setSPct.value); const sR = setSReward.value.trim();
+            const aP = Number(setAPct.value); const aR = setAReward.value.trim();
+            const bP = Number(setBPct.value); const bR = setBReward.value.trim();
+            const cP = Number(setCPct.value); const cR = setCReward.value.trim();
 
-            // % 유효성 점검
             if (ssP <= sP || sP <= aP || aP <= bP || bP <= cP) {
                 if (window.showToast) window.showToast('등급 기준이 올바르지 않습니다. (SS > S > A > B > C 순이어야 합니다.)', true);
                 return;
@@ -532,8 +515,6 @@
 
             if (window.AppStorage.save(SETTINGS_KEY, updatedSettings)) {
                 if (window.showToast) window.showToast('등급 성취도 기준 및 보상이 성공적으로 저장되었습니다!');
-                
-                // 기존 데이터 등급 재계산 작동 및 목록 동시 갱신
                 recalculateAllRecords(updatedSettings);
                 renderCalendar();
                 renderRewards(); 
@@ -541,24 +522,51 @@
         });
     }
 
-    // 설정 변경에 맞춰 기존 공부 데이터들의 성취 등급을 한 번에 재조정하는 함수
     function recalculateAllRecords(newSettings) {
         const records = window.AppStorage.get(RECORDS_KEY) || {};
-        
         Object.keys(records).forEach(dateStr => {
             const record = records[dateStr];
             let grade = 'D'; 
-
             for (let criterion of newSettings) {
-                if (record.percent >= criterion.score) {
-                    grade = criterion.grade;
-                    break;
-                }
+                if (record.percent >= criterion.score) { grade = criterion.grade; break; }
             }
             record.grade = grade;
         });
-
         window.AppStorage.save(RECORDS_KEY, records);
+    }
+
+    // --- [피드백 핵심 기능 로직] ---
+    function initFeedback() {
+        if (!btnSendFeedback || !inputFeedbackText) return;
+
+        btnSendFeedback.addEventListener('click', () => {
+            const content = inputFeedbackText.value.trim();
+            if (content === '') {
+                if (window.showToast) window.showToast('피드백 내용을 입력해 주세요.', true);
+                return;
+            }
+
+            if (!window.AppStorage) return;
+            const currentFeedbacks = window.AppStorage.get(FEEDBACK_KEY) || [];
+            
+            // 새 피드백 데이터 push (타임스탬프와 텍스트)
+            currentFeedbacks.push({
+                timestamp: new Date().toLocaleString(),
+                text: content
+            });
+
+            if (window.AppStorage.save(FEEDBACK_KEY, currentFeedbacks)) {
+                if (window.showToast) window.showToast('피드백이 전송되었습니다. 감사합니다!');
+                inputFeedbackText.value = ''; // 전송 후 입력창 비우기
+                
+                // 전송 성공 후 메인화면이나 이전화면 유도용 뒤로가기 트리거 효과
+                const activeScreen = document.querySelector('.screen.active');
+                if (activeScreen) {
+                    const backBtn = activeScreen.querySelector('.btn-back');
+                    if (backBtn) backBtn.click();
+                }
+            }
+        });
     }
 
     // --- [초기화 제어부 통합 호출] ---
@@ -566,14 +574,16 @@
         document.addEventListener('DOMContentLoaded', () => {
             renderCalendar();
             initTimetable();
-            renderRewards(); // 가이드판 출력 작동
-            initSettings(); // 설정 인터페이스 바인딩
+            renderRewards(); 
+            initSettings(); 
+            initFeedback(); // 피드백 모듈 가동
         });
     } else {
         renderCalendar();
         initTimetable();
         renderRewards();
         initSettings();
+        initFeedback();
     }
 
     // 모달 기본 바인딩
