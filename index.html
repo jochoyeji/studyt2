@@ -148,9 +148,26 @@
                     <button class="menu-btn box-button" data-target="screen-timetable">요일별 시간표 설정</button>
                     <button class="menu-btn box-button" data-target="screen-rewards">성취도 보상 목록</button>
                     <button class="menu-btn box-button" data-target="screen-settings">설정</button>
+                    <button class="menu-btn box-button" data-target="screen-feedback">Feedback</button>
                 </div>
             </div>
         </div>
+
+        <div id="screen-feedback" class="screen content-padding">
+    <header class="header" style="border-bottom:none; padding:15px 0;">
+        <button class="btn-back btn-text">⬅ 뒤로가기</button>
+        <h2>익명 피드백 보내기</h2>
+        <div class="header-placeholder"></div>
+    </header>
+
+    <div class="feedback-box">
+        <p style="font-size:0.85rem; margin-bottom:15px; line-height:1.4; color:#333;">
+            웹사이트 개선을 위한 의견이나 버그 제보를 자유롭게 적어주세요. 보낸 내용은 익명으로 안전하게 저장됩니다.
+        </p>
+        <textarea id="input-feedback-text" placeholder="여기에 피드백 내용을 입력하세요..." rows="6"></textarea>
+        <button id="btn-send-feedback" class="btn-text" style="width:100%; padding:12px; margin-top:15px;">보내기</button>
+    </div>
+</div>
 
         <div id="study-time-modal" class="modal-overlay hidden">
             <div class="study-modal-box">
