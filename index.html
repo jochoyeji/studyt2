@@ -168,8 +168,22 @@
     <script src="js/app.js"></script>
     <script src="js/storage.js"></script>
     <script src="js/records.js"></script>
-    <script>
+ <script>
 (function() {
+    // --- [공통 및 저장소 키] ---
+    const TIMETABLE_KEY = 'timetable';
+    const SETTINGS_KEY = 'settings';
+    const RECORDS_KEY = 'study_records';
+
+    // --- [기본 성취도 및 보상 설정셋] ---
+    const defaultSettings = [
+        { score: 95, grade: 'SS', reward: '지정된 보상이 없습니다.' },
+        { score: 85, grade: 'S',  reward: '지정된 보상이 없습니다.' },
+        { score: 70, grade: 'A',  reward: '지정된 보상이 없습니다.' },
+        { score: 60, grade: 'B',  reward: '지정된 보상이 없습니다.' },
+        { score: 50, grade: 'C',  reward: '지정된 보상이 없습니다.' }
+    ];
+
     // --- [캘린더 및 공통 변수] ---
     const calendarContainer = document.getElementById('calendar-container');
     const monthYearDisplay = document.getElementById('current-month-year');
@@ -181,7 +195,6 @@
     let selectedDateStr = null;
 
     // --- [시간표 변수] ---
-    const TIMETABLE_KEY = 'timetable';
     let currentSelectedDay = 1; 
     const dayNames = { 1: '월요일', 2: '화요일', 3: '수요일', 4: '목요일', 5: '금요일', 6: '토요일', 0: '일요일' };
     const tabButtons = document.querySelectorAll('.tab-btn');
@@ -191,13 +204,23 @@
     const btnSaveTimetable = document.getElementById('btn-save-timetable');
     const totalTargetText = document.getElementById('total-target-text');
 
-    // --- [5단계 추가: 보상 목록 변수] ---
-    const REWARDS_KEY = 'study_rewards_list';
-    const inputRewardText = document.getElementById('input-reward-text');
-    const btnAddReward = document.getElementById('btn-add-reward');
-    const rewardListContainer = document.getElementById('reward-list-container');
+    // --- [보상 목록 출력 뷰 변수] ---
+    const rewardGuideContainer = document.getElementById('reward-guide-container');
 
-    // --- [캘린더 로직] ---
+    // --- [설정 입력 뷰 변수] ---
+    const setSsPct = document.getElementById('set-ss-pct');
+    const setSsReward = document.getElementById('set-ss-reward');
+    const setSPct = document.getElementById('set-s-pct');
+    const setSReward = document.getElementById('set-s-reward');
+    const setAPct = document.getElementById('set-a-pct');
+    const setAReward = document.getElementById('set-a-reward');
+    const setBPct = document.getElementById('set-b-pct');
+    const setBReward = document.getElementById('set-b-reward');
+    const setCPct = document.getElementById('set-c-pct');
+    const setCReward = document.getElementById('set-c-reward');
+    const btnSaveSettings = document.getElementById('btn-save-settings');
+
+    // --- [캘린더 렌더 로직] ---
     function renderCalendar() {
         if (!calendarContainer || !monthYearDisplay) return;
         const now = new Date();
@@ -408,82 +431,132 @@
         }
     }
 
-    // --- [5단계 추가: 보상 목록 핵심 로직] ---
-    function initRewards() {
-        if (!btnAddReward) return;
+    // --- [보상 목록 가이드판 단순 렌더 로직] ---
+    function renderRewards() {
+        if (!rewardGuideContainer) return;
+        rewardGuideContainer.innerHTML = '';
+
+        if (!window.AppStorage) return;
+        const settings = window.AppStorage.get(SETTINGS_KEY) || defaultSettings;
+
+        settings.forEach(item => {
+            const card = document.createElement('div');
+            card.className = 'reward-guide-box';
+            
+            card.innerHTML = `
+                <div class="reward-guide-header">
+                    <span>${item.grade} 등급</span>
+                    <span>달성률 ${item.score}% 이상</span>
+                </div>
+                <div class="reward-guide-body">
+                    ${item.reward ? item.reward : '설정된 보상이 없습니다.'}
+                </div>
+            `;
+            rewardGuideContainer.appendChild(card);
+        });
+    }
+
+    // --- [설정 및 보상 통합 제어 로직] ---
+    function initSettings() {
+        if (!btnSaveSettings) return;
+
+        if (!window.AppStorage) return;
+        const settings = window.AppStorage.get(SETTINGS_KEY) || defaultSettings;
         
-        btnAddReward.addEventListener('click', () => {
-            const text = inputRewardText.value.trim();
-            if (text === '') {
-                if (window.showToast) window.showToast('보상 내용을 입력해 주세요.', true);
+        // 화면 인풋에 기존 값 바인딩
+        settings.forEach(item => {
+            if (item.grade === 'SS') {
+                setSsPct.value = item.score;
+                setSsReward.value = item.reward || '';
+            }
+            if (item.grade === 'S') {
+                setSPct.value = item.score;
+                setSReward.value = item.reward || '';
+            }
+            if (item.grade === 'A') {
+                setAPct.value = item.score;
+                setAReward.value = item.reward || '';
+            }
+            if (item.grade === 'B') {
+                setBPct.value = item.score;
+                setBReward.value = item.reward || '';
+            }
+            if (item.grade === 'C') {
+                setCPct.value = item.score;
+                setCReward.value = item.reward || '';
+            }
+        });
+
+        btnSaveSettings.addEventListener('click', () => {
+            const ssP = Number(setSsPct.value);
+            const ssR = setSsReward.value.trim();
+            const sP = Number(setSPct.value);
+            const sR = setSReward.value.trim();
+            const aP = Number(setAPct.value);
+            const aR = setAReward.value.trim();
+            const bP = Number(setBPct.value);
+            const bR = setBReward.value.trim();
+            const cP = Number(setCPct.value);
+            const cR = setCReward.value.trim();
+
+            // % 유효성 점검
+            if (ssP <= sP || sP <= aP || aP <= bP || bP <= cP) {
+                if (window.showToast) window.showToast('등급 기준이 올바르지 않습니다. (SS > S > A > B > C 순이어야 합니다.)', true);
                 return;
             }
-            
-            const rewards = window.AppStorage.get(REWARDS_KEY) || [];
-            rewards.push({ id: Date.now(), text: text, completed: false });
-            
-            if (window.AppStorage.save(REWARDS_KEY, rewards)) {
-                inputRewardText.value = '';
-                renderRewards();
-                if (window.showToast) window.showToast('새로운 보상이 추가되었습니다!');
+
+            const updatedSettings = [
+                { score: ssP, grade: 'SS', reward: ssR || '지정된 보상이 없습니다.' },
+                { score: sP,  grade: 'S',  reward: sR || '지정된 보상이 없습니다.' },
+                { score: aP,  grade: 'A',  reward: aR || '지정된 보상이 없습니다.' },
+                { score: bP,  grade: 'B',  reward: bR || '지정된 보상이 없습니다.' },
+                { score: cP,  grade: 'C',  reward: cR || '지정된 보상이 없습니다.' }
+            ];
+
+            if (window.AppStorage.save(SETTINGS_KEY, updatedSettings)) {
+                if (window.showToast) window.showToast('등급 성취도 기준 및 보상이 성공적으로 저장되었습니다!');
+                
+                // 기존 데이터 등급 재계산 작동 및 목록 동시 갱신
+                recalculateAllRecords(updatedSettings);
+                renderCalendar();
+                renderRewards(); 
             }
         });
-
-        renderRewards();
     }
 
-    function renderRewards() {
-        if (!rewardListContainer) return;
-        rewardListContainer.innerHTML = '';
-
-        const rewards = window.AppStorage.get(REWARDS_KEY) || [];
+    // 설정 변경에 맞춰 기존 공부 데이터들의 성취 등급을 한 번에 재조정하는 함수
+    function recalculateAllRecords(newSettings) {
+        const records = window.AppStorage.get(RECORDS_KEY) || {};
         
-        if (rewards.length === 0) {
-            rewardListContainer.innerHTML = `<p style="text-align:center; color:#666; font-size:0.9rem; padding:20px 0;">등록된 보상이 없습니다. 목표를 세워보세요!</p>`;
-            return;
-        }
+        Object.keys(records).forEach(dateStr => {
+            const record = records[dateStr];
+            let grade = 'D'; 
 
-        rewards.forEach(reward => {
-            const item = document.createElement('div');
-            item.className = `reward-item ${reward.completed ? 'completed' : ''}`;
-            
-            item.innerHTML = `
-                <span class="reward-item-text">${reward.completed ? '✅ ' : '⬜ '} ${reward.text}</span>
-                <button class="btn-delete-reward">삭제</button>
-            `;
-
-            // 클릭 시 완료 토글 이벤트
-            item.querySelector('.reward-item-text').addEventListener('click', () => {
-                reward.completed = !reward.completed;
-                window.AppStorage.save(REWARDS_KEY, rewards);
-                renderRewards();
-                if (reward.completed && window.showToast) {
-                    window.showToast('🎉 보상 획득 완료! 수고하셨습니다!');
+            for (let criterion of newSettings) {
+                if (record.percent >= criterion.score) {
+                    grade = criterion.grade;
+                    break;
                 }
-            });
-
-            // 삭제 버튼 이벤트
-            item.querySelector('.btn-delete-reward').addEventListener('click', () => {
-                const filtered = rewards.filter(r => r.id !== reward.id);
-                window.AppStorage.save(REWARDS_KEY, filtered);
-                renderRewards();
-            });
-
-            rewardListContainer.appendChild(item);
+            }
+            record.grade = grade;
         });
+
+        window.AppStorage.save(RECORDS_KEY, records);
     }
 
-    // --- [초기화 실행 제어] ---
+    // --- [초기화 제어부 통합 호출] ---
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', () => {
             renderCalendar();
             initTimetable();
-            initRewards(); // 보상 기능 작동 시작
+            renderRewards(); // 가이드판 출력 작동
+            initSettings(); // 설정 인터페이스 바인딩
         });
     } else {
         renderCalendar();
         initTimetable();
-        initRewards();
+        renderRewards();
+        initSettings();
     }
 
     // 모달 기본 바인딩
@@ -520,7 +593,7 @@
         });
     }
 })();
-</script>
+</script>   
     
 </body>
 </html>
